@@ -8,7 +8,7 @@ import Comment from './Comment'
 import styles from './Post.module.css'
 
 
-export function Post({ author, publishedAt, content }) {
+export function Post({ author, publishedAt, content, key }) {
 
     const [comments, setComments] = useState([])
     const [newCommentText, setNewCommentText] = useState('')
@@ -29,8 +29,15 @@ export function Post({ author, publishedAt, content }) {
         setNewCommentText('')
     }
 
-    function handleNewCommentChange(event) {
+    function handleNewCommentChange(comment) {
         setNewCommentText(event.target.value)
+    }
+
+    function onDeleteComment(commentToDelete) {
+        const commentsWithoutDeletedOne = comments.filter(comment => {
+            return comment !== commentToDelete;
+        })
+        setComments(commentsWithoutDeletedOne)
     }
 
     return(
@@ -52,9 +59,9 @@ export function Post({ author, publishedAt, content }) {
             <div className={styles.content}>
                  {content.map(line => {
                     if (line.type === 'paragraph') {
-                        return <p>{line.content}</p>
+                        return <p key={line.content}>{line.content}</p>
                     } else if (line.type === 'link') {
-                        return <p><a href="#">{line.content}</a></p>
+                        return <p key={line.content}><a href="#">{line.content}</a></p>
                     }
                 })}
             </div>
@@ -70,13 +77,17 @@ export function Post({ author, publishedAt, content }) {
                 />
 
                 <footer>
-                    <button type="submit">Publicar</button>
+                    <button type="submit" disabled={newCommentText.length === 0}>Publicar</button>
                 </footer>
             </form>
 
             <div className={styles.commentList}>
                 {comments.map(comments => {
-                    return <Comment content={comments}/>
+                    return <Comment
+                        key={comments}
+                        content={comments}
+                        onDeleteComment={onDeleteComment}
+                    />
                })}
             </div>
 
